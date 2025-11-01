@@ -15,12 +15,9 @@ public class RegisterController {
     @FXML private PasswordField passwordField;
     @FXML private TextField fullnameField;
     @FXML private Label messageLabel;
-    @FXML private Button createButton; // Використовуємо цю кнопку для отримання Stage
+    @FXML private Button createButton; 
     
-    // Нова кнопка "Назад"
-    // Якщо ви її не використовуєте як fx:id, то не обов'язково її оголошувати тут
-    // Якщо використовуєте backBtn з FXML, додайте: @FXML private Button backBtn;
-
+   
     private final AuthService authService = new AuthService();
 
     @FXML

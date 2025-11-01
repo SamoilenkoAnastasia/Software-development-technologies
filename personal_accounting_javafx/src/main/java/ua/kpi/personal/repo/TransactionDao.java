@@ -11,14 +11,14 @@ import java.util.stream.Collectors;
 
 public class TransactionDao {
 
-    // AccountDao та CategoryDao тепер потрібно оновлювати відповідно
+   
     private final CategoryDao categoryDao = new CategoryDao();
     private final AccountDao accountDao = new AccountDao();
 
     public List<Transaction> findByUserId(Long userId){
         var list = new ArrayList<Transaction>();
         
-        // ЗМІНА: Завантажуємо всі категорії та рахунки користувача заздалегідь
+      
         List<Category> allCategories = categoryDao.findByUserId(userId);
         List<Account> allAccounts = accountDao.findByUserId(userId);
         
@@ -39,7 +39,6 @@ public class TransactionDao {
                     
                     Long catId = rs.getLong(6);
                     if (!rs.wasNull()) {
-                        // Використовуємо заздалегідь завантажені категорії
                         t.setCategory(allCategories.stream()
                             .filter(cat -> cat.getId().equals(catId))
                             .findFirst()
@@ -48,14 +47,12 @@ public class TransactionDao {
                     
                     Long accId = rs.getLong(7);
                     if (!rs.wasNull()) {
-                        // Використовуємо заздалегідь завантажені рахунки
                          t.setAccount(allAccounts.stream()
                             .filter(acc -> acc.getId().equals(accId))
                             .findFirst()
                             .orElse(null));
                     }
-                    
-                    // user minimal
+                   
                     User u = new User();
                     u.setId(rs.getLong(8));
                     t.setUser(u);
@@ -84,17 +81,16 @@ public class TransactionDao {
                 if(keys.next()) tx.setId(keys.getLong(1));
             }
             
-            // update account balance
+            
             if(tx.getAccount()!=null && tx.getUser()!=null){
-                // ЗМІНА: Використовуємо findById з user_id
+               
                 Account acc = accountDao.findById(tx.getAccount().getId(), tx.getUser().getId()); 
                 if (acc != null) {
                     double bal = acc.getBalance()==null?0.0:acc.getBalance();
                     if("EXPENSE".equalsIgnoreCase(tx.getType())) bal -= tx.getAmount();
                     else bal += tx.getAmount();
                     acc.setBalance(bal);
-                    
-                    // ЗМІНА: Тепер потрібно, щоб в Account був User
+                   
                     acc.setUser(tx.getUser()); 
                     accountDao.update(acc);
                 }

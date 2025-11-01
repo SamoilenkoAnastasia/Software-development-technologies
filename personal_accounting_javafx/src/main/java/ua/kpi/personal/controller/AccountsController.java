@@ -6,12 +6,9 @@ import javafx.scene.control.*;
 import ua.kpi.personal.model.Account;
 import ua.kpi.personal.repo.AccountDao;
 import ua.kpi.personal.model.User;
-import ua.kpi.personal.state.ApplicationSession; // <--- НОВИЙ ІМПОРТ ДЛЯ PATTERN
+import ua.kpi.personal.state.ApplicationSession; 
 import java.io.IOException;
 
-// Видаляємо непотрібні імпорти FXMLLoader, Scene
-// import javafx.fxml.FXMLLoader;
-// import javafx.scene.Scene; 
 
 public class AccountsController {
     @FXML private ListView<Account> listView;
@@ -26,25 +23,15 @@ public class AccountsController {
 
     @FXML
     private void initialize(){
-        // *** ЗМІНА 1: Отримуємо користувача із сесії при ініціалізації ***
         this.user = ApplicationSession.getInstance().getCurrentUser();
-        
-        // Збережена логіка: Ініціалізуємо ChoiceBox для валют
         currencyChoice.getItems().addAll("UAH", "USD", "EUR"); 
         
-        refresh(); // Тепер refresh спрацює, оскільки user встановлений
+        refresh(); 
     }
 
-    // *** ЗМІНА 2: ВИДАЛЯЄМО setUser() ***
-    /*
-    public void setUser(User user) {
-        this.user = user;
-        refresh();
-    }
-    */
+   
 
     private void refresh(){
-        // Збережена логіка: оновлення
         if (user != null) {
             listView.setItems(FXCollections.observableArrayList(accountDao.findByUserId(user.getId())));
         } else {
@@ -55,7 +42,6 @@ public class AccountsController {
 
     @FXML
     private void onAdd(){
-        // Збережена логіка: додавання рахунку
         String name = nameField.getText();
         String currency = currencyChoice.getValue(); 
         
@@ -89,9 +75,7 @@ public class AccountsController {
     }
 
     @FXML
-    private void onBack() throws IOException { 
-        // *** ЗМІНА 3: ВИКОРИСТОВУЄМО ПАТЕРН STATE ДЛЯ ПЕРЕХОДУ НАЗАД ***
-        // Видаляємо ручне завантаження FXML та виклик ctrl.setUser()
+    private void onBack() throws IOException {  
         ApplicationSession.getInstance().login(user);
     }
 }

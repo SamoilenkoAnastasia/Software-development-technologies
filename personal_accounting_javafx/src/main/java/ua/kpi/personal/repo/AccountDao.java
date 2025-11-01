@@ -40,15 +40,10 @@ public class AccountDao {
         } catch(SQLException e){ e.printStackTrace(); }
         return list;
     }
-    
-    /**
-     * Знаходить рахунок за ID, перевіряючи приналежність користувачу.
-     * @param id ID рахунку.
-     * @param userId ID користувача, якому належить рахунок.
-     * @return Об'єкт Account або null.
-     */
+
+  
     public Account findById(Long id, Long userId){ 
-        // ЗМІНА: Додано стовпці type, currency у SELECT
+        
         String sql = "SELECT id, user_id, name, type, currency, balance FROM accounts WHERE id = ? AND user_id = ?";
         
         try(Connection c = Db.getConnection();
@@ -62,12 +57,11 @@ public class AccountDao {
                     Account a = new Account();
                     a.setId(rs.getLong("id"));
                     a.setName(rs.getString("name"));
-                    // ЗМІНА: Встановлення типу (type) та валюти (currency)
                     a.setType(rs.getString("type"));
                     a.setCurrency(rs.getString("currency"));
                     a.setBalance(rs.getDouble("balance"));
                     
-                    // Створення мінімального об'єкта User
+
                     User u = new User();
                     u.setId(rs.getLong("user_id"));
                     a.setUser(u);
@@ -79,23 +73,17 @@ public class AccountDao {
         return null;
     }
     
-    /**
-     * Оновлює інформацію про рахунок (зокрема баланс).
-     * @param account Об'єкт Account з оновленими даними.
-     * @return Оновлений об'єкт Account.
-     */
+   
     public Account update(Account account){
-        // ЗМІНА: Додано type=? та currency=? в UPDATE
+        
         String sql = "UPDATE accounts SET name=?, balance=?, type=?, currency=? WHERE id=? AND user_id=?";
         
         try(Connection c = Db.getConnection();
             PreparedStatement ps = c.prepareStatement(sql)) { 
             
             ps.setString(1, account.getName());
-            ps.setDouble(2, account.getBalance()==null?0.0:account.getBalance());
-            // ЗМІНА: Використовуємо account.getType()
+            ps.setDouble(2, account.getBalance()==null?0.0:account.getBalance()); 
             ps.setString(3, account.getType());
-            // ЗМІНА: Використовуємо account.getCurrency()
             ps.setString(4, account.getCurrency());
             ps.setLong(5, account.getId());
             ps.setObject(6, account.getUser()!=null?account.getUser().getId():null); 
@@ -105,13 +93,9 @@ public class AccountDao {
         } catch(SQLException e){ e.printStackTrace(); return null; }
     }
     
-    /**
-     * Створює новий рахунок у базі даних.
-     * @param account Об'єкт Account для створення.
-     * @return Об'єкт Account зі встановленим ID.
-     */
+    
     public Account create(Account account){
-        // ЗМІНА: Додано type, currency в INSERT
+        
         String sql = "INSERT INTO accounts (user_id, name, type, currency, balance) VALUES (?,?,?,?,?)";
         
         try(Connection c = Db.getConnection();
@@ -119,9 +103,7 @@ public class AccountDao {
             
             ps.setObject(1, account.getUser()!=null?account.getUser().getId():null); 
             ps.setString(2, account.getName());
-            // ЗМІНА: Використовуємо account.getType()
             ps.setString(3, account.getType());
-            // ЗМІНА: Використовуємо account.getCurrency()
             ps.setString(4, account.getCurrency());
             ps.setDouble(5, account.getBalance()==null?0.0:account.getBalance());
             

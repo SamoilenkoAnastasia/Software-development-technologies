@@ -8,17 +8,10 @@ import javafx.scene.control.*;
 import ua.kpi.personal.model.*;
 import ua.kpi.personal.repo.*;
 import java.time.LocalDateTime;
-
-// Видаляємо непотрібні імпорти FXMLLoader, Scene, Stage
-// import javafx.fxml.FXMLLoader;
-// import javafx.scene.Scene;
-// import javafx.stage.Stage; 
-
-import ua.kpi.personal.state.ApplicationSession; // <--- НОВИЙ ІМПОРТ ДЛЯ PATTERN
+import ua.kpi.personal.state.ApplicationSession; 
 
 public class TransactionsController {
-    
-    // --- FXML Елементи ---
+
     @FXML private TableView<Transaction> table;
     @FXML private TableColumn<Transaction, String> colType;
     @FXML private TableColumn<Transaction, Double> colAmount;
@@ -35,7 +28,6 @@ public class TransactionsController {
     @FXML private Label messageLabel;
     @FXML private Button backBtn;
     
-    // --- DAO та Змінні ---
     private final TransactionDao transactionDao = new TransactionDao();
     private final CategoryDao categoryDao = new CategoryDao();
     private final AccountDao accountDao = new AccountDao();
@@ -43,14 +35,13 @@ public class TransactionsController {
 
     @FXML
     private void initialize(){
-        // *** ЗМІНА 1: Отримуємо користувача із сесії при ініціалізації ***
+
         this.user = ApplicationSession.getInstance().getCurrentUser();
         
-        // Збережена логіка: Налаштування ChoiceBox
+
         typeChoice.getItems().addAll("EXPENSE", "INCOME");
         typeChoice.setValue("EXPENSE"); 
 
-        // Збережена логіка: Налаштування TableView
         colType.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getType()));
         colAmount.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getAmount()));
         colCategory.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(
@@ -61,21 +52,14 @@ public class TransactionsController {
         ));
         colDate.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getCreatedAt()));
         colDesc.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getDescription()));
-        
-        // Викликаємо refresh, оскільки user вже встановлено
+
         refresh(); 
     }
 
-    // *** ЗМІНА 2: ВИДАЛЯЄМО setUser() ***
-    /*
-    public void setUser(User user){
-        this.user = user;
-        refresh();
-    }
-    */
+  
 
     private void refresh(){
-        // Збережена логіка: оновлення
+      
         if (user == null) return;
         
         // Оновлення таблиці
@@ -84,7 +68,7 @@ public class TransactionsController {
         );
         table.setItems(items);
         
-        // Оновлення списків вибору
+        
         categoryChoice.setItems(
             FXCollections.observableArrayList(categoryDao.findByUserId(user.getId()))
         );
@@ -95,32 +79,32 @@ public class TransactionsController {
 
     @FXML
     private void onAdd(){
-        // Збережена логіка: додавання транзакції
+        
         String amountText = amountField.getText();
         String type = typeChoice.getValue();
         Category cat = categoryChoice.getValue();
         Account acc = accountChoice.getValue();
         
-        // --- КРИТИЧНІ ПЕРЕВІРКИ ВАЛІДАЦІЇ ---
+        
         if (type == null) { 
-            messageLabel.setText("? Виберіть тип транзакції."); 
+            messageLabel.setText("Виберіть тип транзакції."); 
             return; 
         }
         if (acc == null) { 
-            messageLabel.setText("? Виберіть Рахунок (Account)."); 
+            messageLabel.setText("Виберіть Рахунок (Account)."); 
             return; 
         }
         if (cat == null) { 
-            messageLabel.setText("? Виберіть Категорію."); 
+            messageLabel.setText("Виберіть Категорію."); 
             return; 
         }
-        // ------------------------------------
+        
 
         try {
             double amount = Double.parseDouble(amountText);
             
             if (amount <= 0) {
-                messageLabel.setText("? Сума має бути додатною.");
+                messageLabel.setText("Сума має бути додатною.");
                 return;
             }
             
@@ -133,7 +117,7 @@ public class TransactionsController {
             tx.setCreatedAt(LocalDateTime.now());
             tx.setUser(user);
             
-            // Виклик DAO
+        
             Transaction created = transactionDao.create(tx);
             
             if(created != null){
@@ -142,17 +126,16 @@ public class TransactionsController {
                 descField.clear();
                 refresh();
             } else {
-                messageLabel.setText("? Помилка при додаванні транзакції. Перевірте консоль.");
+                messageLabel.setText("Помилка при додаванні транзакції. Перевірте консоль.");
             }
         } catch(NumberFormatException ex){ 
-            messageLabel.setText("? НЕкоректна сума (потрібне число, наприклад: 100.50)"); 
+            messageLabel.setText("Некоректна сума (потрібне число, наприклад: 100.50)"); 
         }
     }
 
     @FXML
     private void onBack() throws IOException {
-        // *** ЗМІНА 3: ВИКОРИСТОВУЄМО ПАТЕРН STATE ДЛЯ ПЕРЕХОДУ НАЗАД ***
-        // Видаляємо ручне завантаження FXML та виклик ctrl.setUser()
+
         ApplicationSession.getInstance().login(user);
     }
 }

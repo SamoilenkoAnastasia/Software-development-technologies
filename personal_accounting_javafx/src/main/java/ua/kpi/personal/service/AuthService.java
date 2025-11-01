@@ -9,7 +9,6 @@ public class AuthService {
     public User login(String username, String password){
         User u = userDao.findByUsername(username);
         if(u==null) return null;
-        // NOTE: For prototype we store plain text password (not secure). You can enhance with hashing.
         if(u.getPassword()!=null && u.getPassword().equals(password)) return u;
         return null;
     }

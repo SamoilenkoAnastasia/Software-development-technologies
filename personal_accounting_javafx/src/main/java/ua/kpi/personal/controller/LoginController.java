@@ -14,8 +14,8 @@ public class LoginController {
 
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
-    @FXML private Button loginButton; // Збережено, але більше не використовується для Stage
-    @FXML private Button registerButton; // Збережено, але більше не використовується для Stage
+    @FXML private Button loginButton; 
+    @FXML private Button registerButton; 
     @FXML private Label messageLabel;
 
     private final AuthService authService = new AuthService();
@@ -33,25 +33,16 @@ public class LoginController {
         
         if (user != null) {
             
-            // *** ГОЛОВНА ЗМІНА: Використовуємо патерн State ***
-            // Метод login() в ApplicationSession змінить стан на LoggedInState
-            // і автоматично завантажить екран /fxml/main.fxml
             ApplicationSession.getInstance().login(user); 
-            
-            // Вся логіка (FXMLLoader, Stage, setTitle) тепер знаходиться в ApplicationSession
-            
+ 
         } else {
             messageLabel.setText("Невірні облікові дані або користувача не знайдено");
         }
     }
 
-    // ЗМІНА: ЦЕЙ МЕТОД ЗАРАЗ ПОВИНЕН ЛИШЕ ПЕРЕЙТИ НА ЕКРАН РЕЄСТРАЦІЇ.
-    // Оскільки ApplicationSession керує станом, ми можемо просто використати ручний перехід
-    // ТІЛЬКИ для реєстрації, оскільки Register.fxml не є частиною основних станів LoggedIn/LoggedOut.
     @FXML
     private void onRegister() {
         try {
-            // Ручне завантаження реєстарації (НЕ змінює стан, лише екран)
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/register.fxml"));
             Stage stage = (Stage) registerButton.getScene().getWindow();
             stage.setScene(new Scene(loader.load()));

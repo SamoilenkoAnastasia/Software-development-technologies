@@ -6,12 +6,10 @@ import javafx.scene.control.*;
 import ua.kpi.personal.model.Category;
 import ua.kpi.personal.repo.CategoryDao;
 import ua.kpi.personal.model.User;
-import ua.kpi.personal.state.ApplicationSession; // <--- НОВИЙ ІМПОРТ ДЛЯ PATTERN
+import ua.kpi.personal.state.ApplicationSession; 
 import java.io.IOException;
 
-// Видаляємо непотрібні імпорти FXMLLoader, Scene
-// import javafx.fxml.FXMLLoader;
-// import javafx.scene.Scene;
+
 
 public class CategoriesController {
     @FXML private ListView<Category> listView;
@@ -21,27 +19,22 @@ public class CategoriesController {
     @FXML private Button backBtn;
 
     private final CategoryDao categoryDao = new CategoryDao();
-    private User user; // Зберігаємо поле для бізнес-логіки
+    private User user; 
 
     @FXML
     private void initialize(){
-        // *** ЗМІНА 1: Отримуємо користувача із сесії при ініціалізації ***
         this.user = ApplicationSession.getInstance().getCurrentUser();
-        
-        // Збережена логіка: Додаємо варіанти типу
         typeChoice.getItems().addAll("EXPENSE", "INCOME"); 
-        typeChoice.setValue("EXPENSE"); // Встановлюємо значення за замовчуванням
+        typeChoice.setValue("EXPENSE"); 
         
-        refresh(); // Тепер refresh спрацює, оскільки user встановлений
+        refresh(); 
     }
 
-    // *** ЗМІНА 2: ВИДАЛЯЄМО setUser() ***
-    // public void setUser(User user) { ... }
+    
 
     private void refresh(){
-        // Збережена логіка: оновлення
+        
         if (user != null) {
-            // Завантажуємо категорії, прив'язані до користувача
             listView.setItems(FXCollections.observableArrayList(categoryDao.findByUserId(user.getId())));
         } else {
             listView.setItems(FXCollections.emptyObservableList());
@@ -51,7 +44,7 @@ public class CategoriesController {
 
     @FXML
     private void onAdd(){
-        // Збережена логіка: додавання категорії
+        
         String name = nameField.getText();
         String type = typeChoice.getValue(); 
         
@@ -76,8 +69,7 @@ public class CategoriesController {
 
     @FXML
     private void onBack() throws IOException { 
-        // *** ЗМІНА 3: ВИКОРИСТОВУЄМО ПАТЕРН STATE ДЛЯ ПЕРЕХОДУ НАЗАД ***
-        // Видаляємо ручне завантаження FXML та виклик ctrl.setUser()
+        
         ApplicationSession.getInstance().login(user);
     }
 }

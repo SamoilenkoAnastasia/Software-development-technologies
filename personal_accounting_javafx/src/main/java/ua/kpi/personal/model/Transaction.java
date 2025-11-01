@@ -6,7 +6,7 @@ public class Transaction {
     
     private Long id;
     private Double amount;
-    private String type; // INCOME or EXPENSE
+    private String type; 
     private String description;
     private LocalDateTime createdAt;
     private Category category;

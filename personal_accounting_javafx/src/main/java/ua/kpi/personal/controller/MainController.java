@@ -10,13 +10,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
 
-// *** ДОДАЄМО ЯВНІ ІМПОРТИ ДЛЯ ВСІХ КОНТРОЛЕРІВ, ЯКІ МИ ЗАВАНТАЖУЄМО, ЩОБ УНИКНУТИ 'cannot find symbol' ***
-// Навіть якщо вони в тому ж пакеті, Maven може вимагати їх для коректної збірки
-// (Якщо вони у тому ж пакеті, ви можете пропустити ці імпорти, але для вирішення помилки залишаємо їх)
-// import ua.kpi.personal.controller.TransactionsController; 
-// import ua.kpi.personal.controller.CategoriesController;
-// import ua.kpi.personal.controller.AccountsController; // AccountsController вже присутній
-
 public class MainController {
     @FXML private Label welcomeLabel;
     @FXML private Button transactionsBtn;
@@ -37,7 +30,7 @@ public class MainController {
         ApplicationSession.getInstance().logout();
     }
     
-    // onTransactions
+
  @FXML
     private void onTransactions() throws IOException {
         User user = ApplicationSession.getInstance().getCurrentUser(); // Користувач все ще потрібен тут
@@ -47,13 +40,11 @@ public class MainController {
         Stage stage = (Stage) transactionsBtn.getScene().getWindow();
         Scene scene = new Scene(loader.load());
         
-        // *** ВИДАЛЯЄМО: TransactionsController ctrl = loader.getController();
-        // *** ВИДАЛЯЄМО: ctrl.setUser(user);
-        
+
         stage.setScene(scene);
     }
     
-    // onAccounts
+
     @FXML
     private void onAccounts() throws IOException {
         User user = ApplicationSession.getInstance().getCurrentUser(); 
@@ -61,14 +52,12 @@ public class MainController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/accounts.fxml"));
         Stage stage = (Stage) accountsBtn.getScene().getWindow();
         Scene scene = new Scene(loader.load());
-        
-        // *** ВИДАЛЯЄМО: AccountsController ctrl = loader.getController();
-        // *** ВИДАЛЯЄМО: ctrl.setUser(user);
+
         
         stage.setScene(scene);
     }
     
-    // onCategories
+    
     @FXML
     private void onCategories() throws IOException {
         User user = ApplicationSession.getInstance().getCurrentUser();
@@ -76,9 +65,7 @@ public class MainController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/categories.fxml"));
         Stage stage = (Stage) categoriesBtn.getScene().getWindow();
         Scene scene = new Scene(loader.load());
-        
-        // *** ВИДАЛЯЄМО: CategoriesController ctrl = loader.getController();
-        // *** ВИДАЛЯЄМО: ctrl.setUser(user);
+
         
         stage.setScene(scene);
     }

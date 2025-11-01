@@ -14,19 +14,14 @@ public class ApplicationSession {
     private User currentUser;
     private Stage primaryStage; 
 
-    // *** 1. ПРИВАТНИЙ КОНСТРУКТОР ***
+    
     private ApplicationSession(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-        // Початковий стан: Вийшов із системи
+        this.primaryStage = primaryStage;   
         this.currentState = new LoggedOutState(); 
-        // Завантажуємо перший екран (login.fxml)
         loadView(); 
     }
     
-    // *** 2. ВИДАЛЕНО: public static ApplicationSession getInstance(Stage stage) ***
-    // Ця логіка перенесена в initialize().
-
-    // *** 3. МЕТОД ДЛЯ ПЕРШОЇ СТАТИЧНОЇ ІНІЦІАЛІЗАЦІЇ ***
+   
     public static void initialize(Stage stage) {
         if (instance != null) {
             throw new IllegalStateException("ApplicationSession вже ініціалізовано.");
@@ -34,16 +29,15 @@ public class ApplicationSession {
         instance = new ApplicationSession(stage);
     }
     
-    // *** 4. МЕТОД ДЛЯ ОТРИМАННЯ ЄДИНОГО ЕКЗЕМПЛЯРА ***
+    
     public static ApplicationSession getInstance() {
         if (instance == null) {
-            // Це те, що викликало попередню помилку, коли initialize() не був викликаний.
             throw new IllegalStateException("ApplicationSession не ініціалізовано. Викличте initialize(Stage) у методі start().");
         }
         return instance;
     }
 
-    // --- Методи State ---
+    
 
     public void changeState(SessionState newState) {
         this.currentState = newState;
@@ -58,8 +52,7 @@ public class ApplicationSession {
         currentState.handleLogout(this);
     }
     
-    // --- loadView() ---
-    
+  
     private void loadView() {
         try {
             String fxmlPath = currentState.getFxmlView();
@@ -82,7 +75,7 @@ public class ApplicationSession {
         }
     }
 
-    // --- Геттери та Сеттери ---
+   
     public User getCurrentUser() {
         return currentUser;
     }
