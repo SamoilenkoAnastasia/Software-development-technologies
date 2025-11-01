@@ -5,16 +5,19 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import ua.kpi.personal.model.Account;
 import ua.kpi.personal.repo.AccountDao;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import ua.kpi.personal.model.User;
+import ua.kpi.personal.state.ApplicationSession; // <--- НОВИЙ ІМПОРТ ДЛЯ PATTERN
 import java.io.IOException;
+
+// Видаляємо непотрібні імпорти FXMLLoader, Scene
+// import javafx.fxml.FXMLLoader;
+// import javafx.scene.Scene; 
 
 public class AccountsController {
     @FXML private ListView<Account> listView;
     @FXML private TextField nameField;
     @FXML private TextField balanceField;
-    @FXML private ChoiceBox<String> currencyChoice; // <-- ДОДАНО: Вибір валюти
+    @FXML private ChoiceBox<String> currencyChoice; 
     @FXML private Label messageLabel;
     @FXML private Button backBtn;
 
@@ -23,18 +26,25 @@ public class AccountsController {
 
     @FXML
     private void initialize(){
-        // Ініціалізуємо ChoiceBox для валют
+        // *** ЗМІНА 1: Отримуємо користувача із сесії при ініціалізації ***
+        this.user = ApplicationSession.getInstance().getCurrentUser();
+        
+        // Збережена логіка: Ініціалізуємо ChoiceBox для валют
         currencyChoice.getItems().addAll("UAH", "USD", "EUR"); 
-        refresh(); // Викликається, але не завантажить дані, поки не буде setUser
+        
+        refresh(); // Тепер refresh спрацює, оскільки user встановлений
     }
 
-    // ДОДАНО: Метод для передачі користувача
+    // *** ЗМІНА 2: ВИДАЛЯЄМО setUser() ***
+    /*
     public void setUser(User user) {
         this.user = user;
-        refresh(); // Оновлюємо список після встановлення користувача
+        refresh();
     }
+    */
 
     private void refresh(){
+        // Збережена логіка: оновлення
         if (user != null) {
             listView.setItems(FXCollections.observableArrayList(accountDao.findByUserId(user.getId())));
         } else {
@@ -45,11 +55,12 @@ public class AccountsController {
 
     @FXML
     private void onAdd(){
+        // Збережена логіка: додавання рахунку
         String name = nameField.getText();
-        String currency = currencyChoice.getValue(); // <-- ДОДАНО: Отримання валюти
+        String currency = currencyChoice.getValue(); 
         
         if(name==null || name.isBlank()){ messageLabel.setText("Name required"); return; }
-        if(currency==null){ messageLabel.setText("Currency required"); return; } // Перевірка на валюту
+        if(currency==null){ messageLabel.setText("Currency required"); return; } 
 
         double bal = 0;
         try{ 
@@ -62,9 +73,9 @@ public class AccountsController {
         Account a = new Account();
         a.setName(name);
         a.setBalance(bal);
-        a.setUser(user);    // <-- ВАЖЛИВО: Встановлюємо користувача
-        a.setCurrency(currency); // <-- ВАЖЛИВО: Встановлюємо валюту
-        a.setType("CASH"); // Приклад типу рахунку
+        a.setUser(user);    
+        a.setCurrency(currency); 
+        a.setType("CASH"); 
         
         Account created = accountDao.create(a);
         if(created!=null){ 
@@ -78,15 +89,9 @@ public class AccountsController {
     }
 
     @FXML
-    private void onBack() throws IOException { // Використовуйте IOException, якщо це можливо
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
-        javafx.stage.Stage stage = (javafx.stage.Stage) backBtn.getScene().getWindow();
-        Scene scene = new Scene(loader.load());
-        
-        // ВАЖЛИВО: Передаємо User назад у MainController
-        MainController ctrl = loader.getController();
-        ctrl.setUser(user);
-        
-        stage.setScene(scene);
+    private void onBack() throws IOException { 
+        // *** ЗМІНА 3: ВИКОРИСТОВУЄМО ПАТЕРН STATE ДЛЯ ПЕРЕХОДУ НАЗАД ***
+        // Видаляємо ручне завантаження FXML та виклик ctrl.setUser()
+        ApplicationSession.getInstance().login(user);
     }
 }

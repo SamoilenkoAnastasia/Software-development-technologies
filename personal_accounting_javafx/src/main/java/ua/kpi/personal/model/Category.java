@@ -10,9 +10,7 @@ public class Category {
     private String type;
     private LocalDateTime createdAt;
     
-    // --- Поля та конструктори (якщо вони є) ---
-    
-    // --- Геттери та Сеттери ---
+   
     
     public Long getId() {
         return id;
@@ -38,7 +36,7 @@ public class Category {
         this.name = name;
     }
     
-    // Додані методи:
+  
     public String getType() {
         return type;
     }
@@ -57,7 +55,6 @@ public class Category {
     
     @Override
 public String toString() {
-    // Формат для відображення у ChoiceBox: "Зарплата"
     return name;
 }
 

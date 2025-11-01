@@ -39,7 +39,7 @@ public class RegisterController {
         if(user != null){
             messageLabel.setText("Успішно зареєстровано. Будь ласка, увійдіть.");
             
-            // Після успішної реєстрації виконуємо перехід на екран входу
+            
             goToLoginScreen();
             
         } else {
@@ -47,28 +47,22 @@ public class RegisterController {
         }
     }
     
-    // **********************************************
-    // *** МЕТОД, ЯКИЙ ВИКЛИКАЄ КНОПКА "НАЗАД" ***
-    // **********************************************
+    
     @FXML
     private void onBackToLogin() {
         goToLoginScreen();
     }
     
-    /**
-     * Загальна логіка переходу на екран входу
-     * Використовується як після onBackToLogin, так і після успішної onCreate
-     */
+    
     private void goToLoginScreen() {
          try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
             
-            // Використовуємо createButton для отримання посилання на вікно (Stage)
+            
             Stage stage = (Stage) createButton.getScene().getWindow(); 
             
             Scene scene = new Scene(loader.load());
             
-            // Опціонально: оновлюємо заголовок вікна
             stage.setTitle("Вхід"); 
             stage.setScene(scene);
             

@@ -8,9 +8,13 @@ import javafx.scene.control.*;
 import ua.kpi.personal.model.*;
 import ua.kpi.personal.repo.*;
 import java.time.LocalDateTime;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage; // Явне імпортування Stage
+
+// Видаляємо непотрібні імпорти FXMLLoader, Scene, Stage
+// import javafx.fxml.FXMLLoader;
+// import javafx.scene.Scene;
+// import javafx.stage.Stage; 
+
+import ua.kpi.personal.state.ApplicationSession; // <--- НОВИЙ ІМПОРТ ДЛЯ PATTERN
 
 public class TransactionsController {
     
@@ -39,11 +43,14 @@ public class TransactionsController {
 
     @FXML
     private void initialize(){
-        // Налаштування ChoiceBox
+        // *** ЗМІНА 1: Отримуємо користувача із сесії при ініціалізації ***
+        this.user = ApplicationSession.getInstance().getCurrentUser();
+        
+        // Збережена логіка: Налаштування ChoiceBox
         typeChoice.getItems().addAll("EXPENSE", "INCOME");
-        typeChoice.setValue("EXPENSE"); // Встановлюємо значення за замовчуванням
+        typeChoice.setValue("EXPENSE"); 
 
-        // Налаштування TableView
+        // Збережена логіка: Налаштування TableView
         colType.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getType()));
         colAmount.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getAmount()));
         colCategory.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(
@@ -54,14 +61,21 @@ public class TransactionsController {
         ));
         colDate.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getCreatedAt()));
         colDesc.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getDescription()));
+        
+        // Викликаємо refresh, оскільки user вже встановлено
+        refresh(); 
     }
 
+    // *** ЗМІНА 2: ВИДАЛЯЄМО setUser() ***
+    /*
     public void setUser(User user){
         this.user = user;
         refresh();
     }
+    */
 
     private void refresh(){
+        // Збережена логіка: оновлення
         if (user == null) return;
         
         // Оновлення таблиці
@@ -77,14 +91,11 @@ public class TransactionsController {
         accountChoice.setItems(
             FXCollections.observableArrayList(accountDao.findByUserId(user.getId()))
         );
-        
-        // Скидання вибору після оновлення, якщо потрібно
-        // categoryChoice.setValue(null);
-        // accountChoice.setValue(null);
     }
 
     @FXML
     private void onAdd(){
+        // Збережена логіка: додавання транзакції
         String amountText = amountField.getText();
         String type = typeChoice.getValue();
         Category cat = categoryChoice.getValue();
@@ -99,7 +110,6 @@ public class TransactionsController {
             messageLabel.setText("? Виберіть Рахунок (Account)."); 
             return; 
         }
-        // Перевірка, якщо category_id має NOT NULL в БД:
         if (cat == null) { 
             messageLabel.setText("? Виберіть Категорію."); 
             return; 
@@ -132,7 +142,6 @@ public class TransactionsController {
                 descField.clear();
                 refresh();
             } else {
-                // DAO повернув null - це означає SQL-помилку (яка виведена в консоль)
                 messageLabel.setText("? Помилка при додаванні транзакції. Перевірте консоль.");
             }
         } catch(NumberFormatException ex){ 
@@ -142,11 +151,8 @@ public class TransactionsController {
 
     @FXML
     private void onBack() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
-        Stage stage = (Stage) backBtn.getScene().getWindow();
-        Scene scene = new Scene(loader.load());
-        MainController ctrl = loader.getController();
-        ctrl.setUser(user);
-        stage.setScene(scene);
+        // *** ЗМІНА 3: ВИКОРИСТОВУЄМО ПАТЕРН STATE ДЛЯ ПЕРЕХОДУ НАЗАД ***
+        // Видаляємо ручне завантаження FXML та виклик ctrl.setUser()
+        ApplicationSession.getInstance().login(user);
     }
 }

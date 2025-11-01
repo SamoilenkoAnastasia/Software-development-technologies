@@ -10,14 +10,9 @@ import java.util.List;
 
 public class AccountDao {
     
-    /**
-     * Знаходить усі рахунки, що належать конкретному користувачу.
-     * @param userId ID користувача.
-     * @return Список об'єктів Account.
-     */
+    
     public List<Account> findByUserId(Long userId){ 
         var list = new ArrayList<Account>();
-        // ЗМІНА: Додано стовпці type, currency у SELECT
         String sql = "SELECT id, user_id, name, type, currency, balance FROM accounts WHERE user_id = ?";
         
         try(Connection c = Db.getConnection();
@@ -30,12 +25,11 @@ public class AccountDao {
                     Account a = new Account();
                     a.setId(rs.getLong("id"));
                     a.setName(rs.getString("name"));
-                    // ЗМІНА: Встановлення типу (type) та валюти (currency)
+                    
                     a.setType(rs.getString("type"));
                     a.setCurrency(rs.getString("currency"));
                     a.setBalance(rs.getDouble("balance")); 
-                    
-                    // Створення мінімального об'єкта User
+                     
                     User u = new User();
                     u.setId(rs.getLong("user_id"));
                     a.setUser(u);
