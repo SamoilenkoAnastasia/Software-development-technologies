@@ -22,16 +22,13 @@ public class TemplateDao {
                  
         try (Connection c = Db.getConnection();
              PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            // --- Встановлення параметрів запиту ---
+           
             ps.setString(1, template.getName());
-            
-            // Встановлення user_id
+  
             ps.setLong(2, template.getUser() != null ? template.getUser().getId() : 0);
             
             ps.setString(3, template.getType());
-            
-            // Встановлення default_amount (з обробкою NULL)
+                
             if (template.getDefaultAmount() != null) {
                 ps.setDouble(4, template.getDefaultAmount());
             } else {
@@ -39,8 +36,7 @@ public class TemplateDao {
             }
             
             ps.setString(5, template.getDescription());
-            
-            // Встановлення зовнішніх ключів (Category ID та Account ID)
+
             if (template.getCategory() != null) {
                 ps.setLong(6, template.getCategory().getId());
             } else {
@@ -54,8 +50,7 @@ public class TemplateDao {
             }
             
             ps.executeUpdate();
-            
-            // Отримання згенерованого ID
+
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
                     template.setId(keys.getLong(1));
@@ -75,8 +70,7 @@ public class TemplateDao {
     
     public List<TransactionTemplate> findByUserId(Long userId) {
         List<TransactionTemplate> templates = new ArrayList<>();
-        
-        // Використовуємо JOIN, щоб отримати імена Category та Account, а не лише ID.
+
         String sql = "SELECT t.id, t.name, t.type, t.default_amount, t.description, " +
                      "c.id AS category_id, c.name AS category_name, " +
                      "a.id AS account_id, a.name AS account_name " +
@@ -103,11 +97,7 @@ public class TemplateDao {
         return templates;
     }
 
-    /**
-     * Видаляє шаблон транзакції з бази даних за ID.
-     * @param templateId ID шаблону для видалення.
-     * @return true, якщо видалення пройшло успішно, інакше false.
-     */
+
     public boolean delete(Long templateId) {
         String sql = "DELETE FROM transaction_templates WHERE id = ?";
         
@@ -128,24 +118,24 @@ public class TemplateDao {
     private TransactionTemplate mapResultSetToTemplate(ResultSet rs, Long userId) throws SQLException {
         TransactionTemplate t = new TransactionTemplate();
         
-        // Встановлення примітивних полів
+      
         t.setId(rs.getLong("id"));
         t.setName(rs.getString("name"));
         t.setType(rs.getString("type"));
         t.setDescription(rs.getString("description"));
 
-        // Встановлення default_amount (з обробкою NULL)
+  
         double amount = rs.getDouble("default_amount");
         if (!rs.wasNull()) {
             t.setDefaultAmount(amount);
         }
         
-        // Встановлення користувача
+       
         User user = new User();
         user.setId(userId);
         t.setUser(user);
 
-        // --- Завантаження Залежностей (Category) ---
+     
         Long categoryId = rs.getLong("category_id");
         if (!rs.wasNull()) {
             Category cat = new Category();
@@ -153,8 +143,7 @@ public class TemplateDao {
             cat.setName(rs.getString("category_name")); 
             t.setCategory(cat);
         }
-        
-        // --- Завантаження Залежностей (Account) ---
+      
         Long accountId = rs.getLong("account_id");
         if (!rs.wasNull()) {
             Account acc = new Account();

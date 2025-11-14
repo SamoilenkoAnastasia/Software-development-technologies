@@ -3,21 +3,22 @@ package ua.kpi.personal.controller;
 import java.io.IOException;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader; // Додано для завантаження нового FXML
-import javafx.scene.Parent;    // Додано
-import javafx.scene.Scene;     // Додано
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.stage.Modality;  // Додано для модального вікна
-import javafx.stage.Stage;     // Додано
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import ua.kpi.personal.model.*;
 import ua.kpi.personal.repo.*;
+import ua.kpi.personal.processor.*;
 import java.time.LocalDateTime;
-import java.util.Optional; 
+import java.util.Optional;
 import ua.kpi.personal.state.ApplicationSession;
 
 public class TransactionsController {
 
-    // --- Існуючі FXML Елементи ---
+    
     @FXML private TableView<Transaction> table;
     @FXML private TableColumn<Transaction, String> colType;
     @FXML private TableColumn<Transaction, Double> colAmount;
@@ -28,16 +29,21 @@ public class TransactionsController {
 
     @FXML private ChoiceBox<String> typeChoice;
     @FXML private TextField amountField;
+    
+    
+    @FXML private ChoiceBox<String> currencyChoice; 
+    
     @FXML private ChoiceBox<Category> categoryChoice;
     @FXML private ChoiceBox<Account> accountChoice;
     @FXML private TextField descField;
-    @FXML private Label messageLabel;
+    @FXML private Label messageLabel; 
     @FXML private Button backBtn;
 
-    // --- ВИДАЛЕНО: @FXML private ChoiceBox<TransactionTemplate> templateChoice; ---
 
-    // --- DAO та Змінні ---
-    private final TransactionDao transactionDao = new TransactionDao();
+    
+    private TransactionProcessor transactionProcessor; 
+    
+    private final TransactionDao transactionDao = new TransactionDao(); 
     private final CategoryDao categoryDao = new CategoryDao();
     private final AccountDao accountDao = new AccountDao();
     private final TemplateDao templateDao = new TemplateDao(); 
@@ -47,10 +53,18 @@ public class TransactionsController {
     private void initialize(){
         this.user = ApplicationSession.getInstance().getCurrentUser();
         
-        // --- Існуюча логіка налаштування UI ---
+        
+        setupProcessor(); 
+        
+        
         typeChoice.getItems().addAll("EXPENSE", "INCOME");
         typeChoice.setValue("EXPENSE"); 
-
+        
+        
+        currencyChoice.getItems().addAll("UAH", "USD", "EUR");
+        currencyChoice.setValue("UAH"); // Валюта за замовчуванням
+        
+        
         colType.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getType()));
         colAmount.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getAmount()));
         colCategory.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(
@@ -62,13 +76,39 @@ public class TransactionsController {
         colDate.setCellValueFactory(data -> new javafx.beans.property.SimpleObjectProperty<>(data.getValue().getCreatedAt()));
         colDesc.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getDescription()));
         
-        // --- ВИДАЛЕНО: templateChoice.getSelectionModel().addListener(...) ---
-        // Логіка вибору шаблону тепер в TemplateManagerController
-        
         refresh(); 
     }
+    
+   
 
-    // Додаємо публічний геттер для User, щоб дочірній контролер міг отримати ID
+
+    private void setupProcessor() {
+       
+        TransactionProcessor baseProcessor = new TransactionDao(); 
+        TransactionProcessor currencyProcessor = new CurrencyDecorator(baseProcessor); 
+        TransactionProcessor balanceProcessor = new BalanceCheckDecorator(currencyProcessor); 
+        this.transactionProcessor = new UiNotificationDecorator(balanceProcessor, this); 
+    }
+    
+
+
+     
+     public void displaySuccessDialog(String message) {
+         Alert alert = new Alert(Alert.AlertType.INFORMATION);
+         alert.setTitle("Операція Успішна");
+         alert.setHeaderText(null); 
+         alert.setContentText(message);
+         alert.showAndWait();
+     }
+
+
+     public void displayErrorDialog(String message) {
+         Alert alert = new Alert(Alert.AlertType.ERROR);
+         alert.setTitle("Помилка Обробки Транзакції");
+         alert.setHeaderText("Операцію не вдалося виконати.");
+         alert.setContentText(message);
+         alert.showAndWait();
+     }
     public User getUser() {
         return user;
     }
@@ -76,50 +116,37 @@ public class TransactionsController {
     void refresh(){
         if (user == null) return;
         
-        // Оновлення таблиці
-        table.setItems(
+                table.setItems(
             FXCollections.observableArrayList(transactionDao.findByUserId(user.getId()))
         );
         
-        // Оновлення Category та Account
         categoryChoice.setItems(
             FXCollections.observableArrayList(categoryDao.findByUserId(user.getId()))
         );
         accountChoice.setItems(
             FXCollections.observableArrayList(accountDao.findByUserId(user.getId()))
         );
-
-        // --- ВИДАЛЕНО: Оновлення списку шаблонів (templateChoice) ---
     }
 
-    // ===============================================
-    //           МЕТОДИ ПАТЕРНУ ПРОТОТИП
-    // ===============================================
     
-    /**
-     * Заповнює поля форми даними з обраного шаблону (прототипу).
-     * Викликається з TemplateManagerController.
-     * @param template Прототип TransactionTemplate.
-     */
     public void fillFormWithTemplate(TransactionTemplate template) {
-        // КЛЮЧОВИЙ МОМЕНТ: Створюємо нову транзакцію клонуванням!
         Transaction clonedTx = template.createTransactionFromTemplate(); 
         
-        // Заповнюємо поля форми даними з клону
+       
         typeChoice.setValue(clonedTx.getType());
         amountField.setText(clonedTx.getAmount() != 0.0 ? String.format("%.2f", clonedTx.getAmount()) : ""); 
         descField.setText(clonedTx.getDescription());
         
-        // Встановлення об'єктів у ChoiceBox
+        currencyChoice.setValue("UAH"); 
+        
+        
         categoryChoice.getSelectionModel().select(clonedTx.getCategory());
         accountChoice.getSelectionModel().select(clonedTx.getAccount());
 
-        messageLabel.setText("? Форма заповнена шаблоном '" + template.getName() + "'. Змініть суму та додайте.");
+        messageLabel.setText("Форма заповнена шаблоном '" + template.getName() + "'. Змініть суму та додайте.");
     }
     
-    /**
-     * Відкриває модальне вікно для вибору, пошуку та видалення шаблонів.
-     */
+  
     @FXML
     private void onManageTemplates() throws IOException {
         try {
@@ -127,12 +154,11 @@ public class TransactionsController {
             Parent root = loader.load();
             
             TemplateManagerController controller = loader.getController();
-            controller.setParentController(this); // Передаємо посилання на себе
-            
+            controller.setParentController(this); 
             Stage stage = new Stage();
             stage.setTitle("Управління Шаблонами Транзакцій");
             stage.setScene(new Scene(root));
-            stage.initModality(Modality.APPLICATION_MODAL); // Блокуємо головне вікно
+            stage.initModality(Modality.APPLICATION_MODAL); 
             stage.showAndWait();
         } catch (IOException e) {
             messageLabel.setText("Помилка завантаження вікна шаблонів: " + e.getMessage());
@@ -141,12 +167,8 @@ public class TransactionsController {
     }
 
 
-    /**
-     * Відкриває діалогове вікно для збереження поточної транзакції як нового шаблону.
-     */
     @FXML
     private void onSaveAsTemplate() {
-        // ... (Логіка onSaveAsTemplate залишається без змін) ...
         Optional<String> result = showTemplateNameDialog();
         
         if (result.isPresent() && !result.get().isBlank()) {
@@ -161,12 +183,11 @@ public class TransactionsController {
             t.setUser(user); 
             
             templateDao.create(t);
-            messageLabel.setText("? Шаблон '" + t.getName() + "' успішно збережено.");
+            messageLabel.setText("Шаблон '" + t.getName() + "' успішно збережено.");
             refresh(); 
         }
     }
     
-    // Допоміжний метод для отримання назви шаблону через діалог
     private Optional<String> showTemplateNameDialog() {
         TextInputDialog dialog = new TextInputDialog("");
         dialog.setTitle("Зберегти Шаблон");
@@ -183,11 +204,7 @@ public class TransactionsController {
         }
     }
 
-
-    // ===============================================
-    //           ІСНУЮЧА ЛОГІКА КОНТРОЛЕРА
-    // ===============================================
-
+    
     @FXML
     private void onAdd(){
         String amountText = amountField.getText();
@@ -195,10 +212,14 @@ public class TransactionsController {
         Category cat = categoryChoice.getValue();
         Account acc = accountChoice.getValue();
         
-        // Перевірки
+        
+        String currency = currencyChoice.getValue(); 
+        
+        
         if (type == null) { messageLabel.setText("Виберіть тип транзакції."); return; }
         if (acc == null) { messageLabel.setText("Виберіть Рахунок (Account)."); return; }
         if (cat == null) { messageLabel.setText("Виберіть Категорію."); return; }
+        if (currency == null) { messageLabel.setText("Виберіть Валюту."); return; } 
         
         try {
             double amount = Double.parseDouble(amountText);
@@ -217,18 +238,19 @@ public class TransactionsController {
             tx.setCreatedAt(LocalDateTime.now());
             tx.setUser(user);
             
-            Transaction created = transactionDao.create(tx);
             
-            if(created != null){
-                messageLabel.setText("? Транзакцію успішно додано.");
-                amountField.clear(); 
-                descField.clear();
-                refresh();
-            } else {
-                messageLabel.setText("Помилка при додаванні транзакції.");
-            }
+            tx.setCurrency(currency); 
+            
+            transactionProcessor.create(tx);
+
+            amountField.clear(); 
+            descField.clear();
+            refresh();
+
         } catch(NumberFormatException ex){ 
             messageLabel.setText("Некоректна сума (потрібне число, наприклад: 100.50)"); 
+        } catch (RuntimeException ex) {
+            System.err.println("Transaction failed: " + ex.getMessage());
         }
     }
 

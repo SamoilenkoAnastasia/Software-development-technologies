@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class ApplicationSession {
     
-    private static ApplicationSession instance; // Єдиний екземпляр
+    private static ApplicationSession instance; 
     
     private SessionState currentState;
     private User currentUser;
@@ -59,7 +59,6 @@ public class ApplicationSession {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Scene scene = new Scene(loader.load());
             
-            // Встановлення заголовка
             if (fxmlPath.equals("/fxml/login.fxml")) {
                 primaryStage.setTitle("Вхід / Реєстрація");
             } else if (fxmlPath.equals("/fxml/main.fxml")) {

@@ -43,12 +43,13 @@
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button text="Зберегти як Шаблон" onAction="#onSaveAsTemplate"/>
             </HBox>
-            
+             
             <HBox spacing="10" alignment="CENTER_LEFT">
                 <Label text="Тип:"/><ChoiceBox fx:id="typeChoice"/>
                 <Region HBox.hgrow="ALWAYS"/>
+                
                 <Label text="Сума:"/><TextField fx:id="amountField" prefWidth="80"/>
-                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Валюта:"/><ChoiceBox fx:id="currencyChoice" prefWidth="80"/> <Region HBox.hgrow="ALWAYS"/>
                 <Label text="Категорія:"/><ChoiceBox fx:id="categoryChoice"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label text="Рахунок:"/><ChoiceBox fx:id="accountChoice"/>

@@ -23,7 +23,7 @@ public class LoggedOutState implements SessionState {
 
     @Override
     public String getFxmlView() {
-        // Екран входу/реєстрації
+        
         return "/fxml/login.fxml"; 
     }
 }

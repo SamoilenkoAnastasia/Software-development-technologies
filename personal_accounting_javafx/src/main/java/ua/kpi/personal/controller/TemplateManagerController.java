@@ -14,25 +14,25 @@ import java.util.stream.Collectors;
 
 public class TemplateManagerController {
     @FXML private ListView<TransactionTemplate> templateListView;
-    @FXML private TextField searchField; // <-- НОВЕ ПОЛЕ ДЛЯ ПОШУКУ
+    @FXML private TextField searchField; 
     
     private final TemplateDao templateDao = new TemplateDao();
     private TransactionsController parentController; 
-    private ObservableList<TransactionTemplate> masterList; // Основний список шаблонів
+    private ObservableList<TransactionTemplate> masterList; 
 
     public void setParentController(TransactionsController controller) {
         this.parentController = controller;
-        loadMasterList(); // Завантажуємо дані
-        refreshList();   // Відображаємо
+        loadMasterList(); 
+        refreshList();   
     }
 
-    /** Завантажує всі шаблони з БД у masterList. */
+    
     private void loadMasterList() {
         List<TransactionTemplate> templates = templateDao.findByUserId(parentController.getUser().getId());
         this.masterList = FXCollections.observableArrayList(templates);
     }
 
-    /** Оновлює ListView, застосовуючи фільтр пошуку. */
+   
     private void refreshList() {
         String searchText = searchField.getText().toLowerCase();
 
@@ -49,17 +49,17 @@ public class TemplateManagerController {
     
     @FXML
     private void initialize() {
-        // Додаткове налаштування: дозволити подвійний клік для вибору
+
         templateListView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2 && !templateListView.getSelectionModel().isEmpty()) {
                 onSelectTemplate();
             }
         });
 
-        // Слухач для поля пошуку: оновлюємо список при кожній зміні тексту
+        
         searchField.textProperty().addListener((obs, oldText, newText) -> refreshList());
         
-        // Відображення детальної інформації в ListView
+        
         templateListView.setCellFactory(lv -> new ListCell<TransactionTemplate>() {
             @Override
             protected void updateItem(TransactionTemplate template, boolean empty) {
@@ -100,15 +100,15 @@ public class TemplateManagerController {
         if (selected != null) {
             Optional<ButtonType> result = showConfirmationDialog(
                 "Підтвердження", 
-                "Ви впевнені, що хочете видалити шаблон '" + selected.getName() + "'? Це не можна скасувати."
+                "Ви впевнені, що хочете видалити шаблон '" + selected.getName() + "'Це не можна скасувати."
             );
             
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 if (templateDao.delete(selected.getId())) {
                     showAlert("Успіх", "Шаблон видалено.");
-                    loadMasterList(); // Перезавантажуємо головний список
-                    refreshList(); // Оновлюємо відображення (включаючи фільтр)
-                    parentController.refresh(); // Оновлюємо головний контролер
+                    loadMasterList(); 
+                    refreshList(); 
+                    parentController.refresh(); 
                 } else {
                     showAlert("Помилка", "Не вдалося видалити шаблон.");
                 }
@@ -118,7 +118,7 @@ public class TemplateManagerController {
         }
     }
 
-    // Допоміжні методи (залишаються без змін)
+    
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);

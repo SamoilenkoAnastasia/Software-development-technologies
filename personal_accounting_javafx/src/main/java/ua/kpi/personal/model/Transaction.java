@@ -1,13 +1,15 @@
 package ua.kpi.personal.model;
 
 import java.time.LocalDateTime;
+import ua.kpi.personal.model.analytics.ReportDataPoint;
 
-public class Transaction {
+public class Transaction{
     
     private Long id;
     private Double amount;
-    private String type; 
+    private String type;
     private String description;
+    private String currency;
     private LocalDateTime createdAt;
     private Category category;
     private Account account;
@@ -22,6 +24,8 @@ public class Transaction {
     public String getDescription(){return description;}
     public void setDescription(String description){this.description=description;}
     public LocalDateTime getCreatedAt(){return createdAt;}
+    public String getCurrency() {return currency;}
+    public void setCurrency(String currency) {this.currency = currency;}
     public void setCreatedAt(LocalDateTime createdAt){this.createdAt=createdAt;}
     public Category getCategory(){return category;}
     public void setCategory(Category category){this.category=category;}
