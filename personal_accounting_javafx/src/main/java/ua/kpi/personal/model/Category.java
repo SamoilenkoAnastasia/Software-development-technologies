@@ -1,61 +1,83 @@
 package ua.kpi.personal.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-public class Category {
+public final class Category {
     
-    private Long id;
-    private User user;
-    private String name;
-    private String type;
-    private LocalDateTime createdAt;
+    private final Long id;
+    private final Long userId; 
+    private final String name;
+    private final String type;
+    private final Long parentId; 
+    private final LocalDateTime createdAt;
     
    
+    public Category(Long id, Long userId, String name, String type, Long parentId, LocalDateTime createdAt) {
+        this.id = id;
+        this.userId = userId;
+        this.name = name;
+        this.type = type;
+        this.parentId = parentId; 
+        this.createdAt = createdAt;
+    }
+
+
+    public Category(Long userId, String name, String type, Long parentId) {
+        this(null, userId, name, type, parentId, LocalDateTime.now());
+    }
+
+  
+    public Category withId(Long newId) {
+        return new Category(newId, this.userId, this.name, this.type, this.parentId, this.createdAt);
+    }
+    
+   
+    public Category withUpdate(String newName, String newType, Long newParentId) {
+        return new Category(this.id, this.userId, newName, newType, newParentId, this.createdAt);
+    }
+    
+  
     
     public Long getId() {
         return id;
     }
     
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    public Long getUserId() {
+        return userId;
     }
 
     public String getName() {
         return name;
     }
-
-    public void setName(String name) {
-        this.name = name;
-    }
     
-  
     public String getType() {
         return type;
     }
-
-    public void setType(String type) {
-        this.type = type;
+    
+    public Long getParentId() {
+        return parentId;
     }
     
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
     
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
     @Override
-public String toString() {
-    return name;
-}
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Category category = (Category) o;
+        return Objects.equals(id, category.id); 
+    }
 
-} 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+}
