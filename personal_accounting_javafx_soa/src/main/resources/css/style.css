@@ -1,0 +1,124 @@
+/* =========================================================================
+   1. КОРИСТУВАЦЬКІ ЗМІННІ (НІЖНО-ФІОЛЕТОВА ПАЛІТРА)
+   ========================================================================= */
+.root {
+    /* Основний фіолетовий (акцент) */
+    -fx-primary-color: #7966A5;        /* Насичений фіолетовий для кнопок */
+    /* Світлий фіолетовий (фон) */
+    -fx-secondary-color: #F8F4FF;      /* Дуже світлий фон */
+    /* Ніжний фіолетовий (бордюри, виділення) */
+    -fx-accent-color: #B19CD9;         /* Ніжний, м'який фіолетовий */
+    
+    /* Основні кольори тексту */
+    -fx-text-color: #333333;           /* Темно-сірий текст */
+    -fx-light-text-color: #FFFFFF;     /* Білий текст */
+
+    -fx-font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: -fx-secondary-color;
+}
+
+/* =========================================================================
+   2. ЗАГАЛЬНІ ЕЛЕМЕНТИ ФОРМИ (ВВЕДЕННЯ, ВИБІР)
+   ========================================================================= */
+.label {
+    -fx-text-fill: -fx-text-color;
+}
+
+.text-field, .choice-box {
+    -fx-background-color: -fx-light-text-color;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 6px;
+    -fx-border-width: 1px;
+}
+
+/* Фокус на полях введення */
+.text-field:focused, .choice-box:focused {
+    -fx-border-color: -fx-accent-color;
+    -fx-effect: dropshadow(gaussian, rgba(177, 156, 217, 0.4), 8, 0.0, 0, 0);
+}
+
+/* =========================================================================
+   3. СТИЛІ КНОПОК
+   ========================================================================= */
+.button {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: -fx-light-text-color;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 20px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand; /* Курсор при наведенні */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.0, 1, 1);
+}
+
+/* Ефект при наведенні */
+.button:hover {
+    -fx-background-color: derive(-fx-primary-color, 20%); /* Трохи світліший */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0.0, 1, 1);
+}
+
+/* Стиль для кнопки "Назад" (якщо вона backBtn) */
+#backBtn {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-primary-color;
+    -fx-border-color: -fx-primary-color;
+    -fx-border-width: 1px;
+    -fx-font-weight: normal;
+    -fx-effect: none;
+    -fx-padding: 5px 15px;
+}
+#backBtn:hover {
+    -fx-background-color: derive(-fx-secondary-color, -10%);
+    -fx-text-fill: derive(-fx-primary-color, 10%);
+}
+
+/* =========================================================================
+   4. ТАБЛИЦЯ ТРАНЗАКЦІЙ
+   ========================================================================= */
+.table-view {
+    -fx-background-color: -fx-secondary-color;
+    -fx-border-color: -fx-accent-color;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 0;
+}
+
+/* Заголовок таблиці (Header) */
+.table-view .column-header-background {
+    -fx-background-color: -fx-accent-color;
+    -fx-background-radius: 5px 5px 0 0;
+}
+.table-view .column-header .label {
+    -fx-text-fill: -fx-light-text-color;
+    -fx-font-weight: bold;
+}
+
+/* Рядки таблиці */
+.table-row-cell {
+    -fx-background-color: -fx-light-text-color; /* Білий фон для рядків */
+    -fx-border-color: transparent;
+    -fx-cell-size: 35px;
+}
+
+/* Рядок при наведенні курсора */
+.table-row-cell:hover {
+    -fx-background-color: derive(-fx-secondary-color, -5%);
+}
+
+/* Виділений рядок */
+.table-row-cell:selected {
+    -fx-background-color: derive(-fx-accent-color, 30%);
+    -fx-text-fill: -fx-light-text-color;
+}
+
+/* =========================================================================
+   5. ПОВІДОМЛЕННЯ
+   ========================================================================= */
+#messageLabel {
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color; /* Використовуємо основний колір для повідомлень */
+    -fx-padding: 5px 0 0 0;
+}
